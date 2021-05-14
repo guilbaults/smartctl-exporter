@@ -1,0 +1,13 @@
+[Unit]
+Description=smartctl-exporter
+After=network.target
+
+[Service]
+Type=simple
+EnvironmentFile=-/etc/sysconfig/smartctl-exporter.conf
+ExecStart=/usr/bin/smartctl-exporter
+PIDFile=/var/run/smartctl-exporter.pid
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
