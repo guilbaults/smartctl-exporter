@@ -74,6 +74,10 @@ class SmartctlCollector(object):
         counter_write_gigabytes = CounterMetricFamily(
             'smartctl_write_gigabytes',
             'Number of gigabytes write', labels=labels_disk)
+        gauge_failed_short_self_test = GaugeMetricFamily('smartctl_failed_short_self_test',
+            'Number of failed short self-test', labels=labels_disk)
+        gauge_failed_long_self_test = GaugeMetricFamily('smartctl_failed_long_self_test',
+            'Number of failed long self-test', labels=labels_disk)
 
         for path in self.paths:
             if os.path.exists(path) is False:
@@ -139,6 +143,21 @@ class SmartctlCollector(object):
             counter_write_gigabytes.add_metric(labels,
                 str(j['scsi_error_counter_log']['write']['gigabytes_processed']))
 
+            # counting the number of failed self-test
+            failed_short = 0
+            failed_long = 0
+            for line in j['smartctl']['output']:
+                m = re.match(r'.*Background (long|short)\s+(Completed|Self test in progress|Failed in segment).*', line)
+                if m:
+                    if(str(m.group(2)) == 'Failed in segment'):
+                        length = str(m.group(1))
+                        if length == 'short':
+                            failed_short += 1
+                        elif length == 'long':
+                            failed_long += 1
+            gauge_failed_short_self_test.add_metric(labels, str(failed_short))
+            gauge_failed_long_self_test.add_metric(labels, str(failed_long))
+
         yield counter_minutes
         yield gauge_temperature
         yield gauge_smart_status
@@ -155,6 +174,8 @@ class SmartctlCollector(object):
         yield counter_write_correction_algorithm_invocations
         yield counter_read_gigabytes
         yield counter_write_gigabytes
+        yield gauge_failed_short_self_test
+        yield gauge_failed_long_self_test
         logging.debug('End of collection cycle')
 
 
