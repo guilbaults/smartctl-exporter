@@ -78,6 +78,9 @@ class SmartctlCollector(object):
             'Number of failed short self-test', labels=labels_disk)
         gauge_failed_long_self_test = GaugeMetricFamily('smartctl_failed_long_self_test',
             'Number of failed long self-test', labels=labels_disk)
+        counter_non_medium_errors = CounterMetricFamily(
+            'smartctl_non_medium_errors',
+            'Non-medium error count', labels=labels_disk)
 
         for path in self.paths:
             if os.path.exists(path) is False:
@@ -155,8 +158,12 @@ class SmartctlCollector(object):
                             failed_short += 1
                         elif length == 'long':
                             failed_long += 1
+                m_medium = re.match(r'Non-medium error count:\s+(\d+)', line)
+                if m_medium:
+                    counter_non_medium_errors.add_metric(labels, str(m_medium.group(1)))
             gauge_failed_short_self_test.add_metric(labels, str(failed_short))
             gauge_failed_long_self_test.add_metric(labels, str(failed_long))
+
 
         yield counter_minutes
         yield gauge_temperature
@@ -176,6 +183,7 @@ class SmartctlCollector(object):
         yield counter_write_gigabytes
         yield gauge_failed_short_self_test
         yield gauge_failed_long_self_test
+        yield counter_non_medium_errors
         logging.debug('End of collection cycle')
 
 
