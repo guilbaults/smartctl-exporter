@@ -1,6 +1,6 @@
 Name:	  smartctl-exporter
-Version:  0.0.1
-%global gittag 0.0.1
+Version:  0.0.2
+%global gittag 0.0.2
 Release:  1%{?dist}
 Summary:  Prometheus exporter for smartctl stats
 
@@ -37,5 +37,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_unitdir}/smartctl-exporter.service
 
 %changelog
+* Mon May 17 2021 Simon Guilbault <simon.guilbault@calculquebec.ca> 0.0.2-1
+* Adding self-test errors count and non-medium errors count
 * Fri May 14 2021 Simon Guilbault <simon.guilbault@calculquebec.ca> 0.0.1-1
 - Initial release
