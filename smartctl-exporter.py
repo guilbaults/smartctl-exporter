@@ -81,6 +81,8 @@ class SmartctlCollector(object):
         counter_non_medium_errors = CounterMetricFamily(
             'smartctl_non_medium_errors',
             'Non-medium error count', labels=labels_disk)
+        gauge_endurance_indicator = GaugeMetricFamily('smartctl_endurance_indicator',
+            'SSD endurance indicator, in percent', labels=labels_disk)
 
         for path in self.paths:
             if os.path.exists(path) is False:
@@ -120,7 +122,11 @@ class SmartctlCollector(object):
                 gauge_smart_status.add_metric(labels, "1")
             else:
                 gauge_smart_status.add_metric(labels, "0")
-            counter_grown_defect_list.add_metric(labels, str(j['scsi_grown_defect_list']))
+            try:
+                # Does not seem to always exist on SSDs
+                counter_grown_defect_list.add_metric(labels, str(j['scsi_grown_defect_list']))
+            except KeyError:
+                pass
             counter_read_errors_corrected_by_eccfast.add_metric(labels,
                 str(j['scsi_error_counter_log']['read']['errors_corrected_by_eccfast']))
             counter_write_errors_corrected_by_eccfast.add_metric(labels,
@@ -164,6 +170,11 @@ class SmartctlCollector(object):
             gauge_failed_short_self_test.add_metric(labels, str(failed_short))
             gauge_failed_long_self_test.add_metric(labels, str(failed_long))
 
+            try:
+                gauge_endurance_indicator.add_metric(labels,
+                    str(j['scsi_percentage_used_endurance_indicator']))
+            except KeyError:
+                pass
 
         yield counter_minutes
         yield gauge_temperature
@@ -184,6 +195,7 @@ class SmartctlCollector(object):
         yield gauge_failed_short_self_test
         yield gauge_failed_long_self_test
         yield counter_non_medium_errors
+        yield gauge_endurance_indicator
         logging.debug('End of collection cycle')
 
 
