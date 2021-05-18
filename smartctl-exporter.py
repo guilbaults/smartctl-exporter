@@ -11,10 +11,10 @@ from wsgiref.simple_server import make_server, WSGIRequestHandler
 
 
 class SmartctlCollector(object):
-    def __init__(self):
+    def __init__(self, smartdconf_path):
         self.paths = []
         # Use the paths defined in smartd.conf
-        with open('/etc/smartmontools/smartd.conf', 'r') as smartdconf:
+        with open(smartdconf_path, 'r') as smartdconf:
             for line in smartdconf:
                 m = re.match(r"^(\/dev\/.*?)\s", line)
                 if m:
@@ -200,6 +200,12 @@ if __name__ == '__main__':
         type=int,
         default=8080,
         help='Collector http port, default is 8080')
+    parser.add_argument(
+        '--smartdconf',
+        type=str,
+        default='/etc/smartmontools/smartd.conf',
+        help='Path to smartd.conf'
+    )
     parser.add_argument("--verbose", help="increase output verbosity",
                         action="store_true")
 
@@ -210,7 +216,7 @@ if __name__ == '__main__':
     else:
         logging.basicConfig(level=logging.INFO,
                             format='%(asctime)s - %(levelname)s - %(message)s')
-    app = make_wsgi_app(SmartctlCollector())
+    app = make_wsgi_app(SmartctlCollector(args.smartdconf))
     httpd = make_server('', args.port, app,
                         handler_class=NoLoggingWSGIRequestHandler)
     httpd.serve_forever()
