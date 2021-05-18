@@ -119,7 +119,7 @@ class SmartctlCollector(object):
             if j['smart_status']['passed']:
                 gauge_smart_status.add_metric(labels, "1")
             else:
-                gauge_smart_status.add_metric(labels, "1")
+                gauge_smart_status.add_metric(labels, "0")
             counter_grown_defect_list.add_metric(labels, str(j['scsi_grown_defect_list']))
             counter_read_errors_corrected_by_eccfast.add_metric(labels,
                 str(j['scsi_error_counter_log']['read']['errors_corrected_by_eccfast']))
