@@ -7,11 +7,17 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: build RPM package
+    - name: build RPM package 7
       id: rpm
       uses: naveenrajm7/rpmbuild@master
       with:
         spec_file: "smartctl-exporter-el7.spec"
+
+    - name: build RPM package 8
+      id: rpm
+      uses: naveenrajm7/rpmbuild@master
+      with:
+        spec_file: "smartctl-exporter-el8.spec"
 
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
