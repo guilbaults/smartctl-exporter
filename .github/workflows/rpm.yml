@@ -8,13 +8,13 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: build RPM package 7
-      id: rpm
+      id: rpm7
       uses: naveenrajm7/rpmbuild@master
       with:
         spec_file: "smartctl-exporter-el7.spec"
 
     - name: build RPM package 8
-      id: rpm
+      id: rpm8
       uses: naveenrajm7/rpmbuild@master
       with:
         spec_file: "smartctl-exporter-el8.spec"
